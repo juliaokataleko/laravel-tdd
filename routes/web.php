@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,9 +25,25 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::middleware('is_admin')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
+});
+
+Route::get('create-admin', function() {
+    User::create([
+        'name' => 'Admin 1',
+        'email' => 'admin@admin.com',
+        'password' => bcrypt(123456),
+        'email_verified_at' => now(),
+        'level' => 1
+    ]);
 });
 
 require __DIR__.'/auth.php';
